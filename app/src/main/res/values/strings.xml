@@ -3,7 +3,7 @@
     <string name="day1">Day 1 of the 1v1 Tourney</string>
     <string name="day2">Day 2 of the 1v1 Tourney</string>
     <string name="day3">Day 1 of the Free-for-All Tourney</string>
-    <string name="day4">Day 2 of  theFree-for-All Tourney</string>
+    <string name="day4">Day 2 of the Free-for-All Tourney</string>
     <string name="next">The next round of 1v1 Tourneys will begin on %s.</string>
     <string name="content">A picture representing the tournament of the day.</string>
 </resources>
