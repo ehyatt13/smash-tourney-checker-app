@@ -27,13 +27,17 @@ class MainActivity : AppCompatActivity() {
     // Day 0 starts at 06:00 UTC on 2024-12-23
     private val initialInstant = Instant.parse("2024-12-23T06:00:00Z")
     private val timeFormatter = DateTimeFormatter.ofPattern("h:mm a")
+    
+    private var selectedDate: LocalDate = LocalDate.now()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+        
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // Include system bars and display cutouts (for landscape notches)
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
@@ -77,14 +81,13 @@ class MainActivity : AppCompatActivity() {
 
             val drawableId = if (is1v1) R.drawable._v1 else R.drawable.ffa
             picView.setImageDrawable(ResourcesCompat.getDrawable(resources, drawableId, theme))
-            
-            // Always show the image for visual consistency
             picView.visibility = View.VISIBLE
             
             card.setBackgroundColor(if (isLive) Color.parseColor("#10FF0000") else Color.TRANSPARENT)
         }
 
         fun displayDay(localDate: LocalDate) {
+            selectedDate = localDate
             val zoneId = ZoneId.systemDefault()
             val now = Instant.now()
             
@@ -103,37 +106,50 @@ class MainActivity : AppCompatActivity() {
 
             val transitionTimeStr = transitionLocal.format(timeFormatter)
             
-            // Period 1: From start of local day until transition
             val period1Instant = transitionInstant.minusSeconds(1) 
             val (dayIdx1, is1v1_1) = getTourneyInfo(period1Instant)
             
-            // Period 2: From transition until end of local day
             val period2Instant = transitionInstant.plusSeconds(1)
             val (dayIdx2, is1v1_2) = getTourneyInfo(period2Instant)
 
-            val isToday = localDate == LocalDate.now()
-            val isLiveBefore = isToday && now.isBefore(transitionInstant)
-            val isLiveAfter = isToday && !now.isBefore(transitionInstant)
+            val isTodayDate = localDate == LocalDate.now()
+            val isLiveBefore = isTodayDate && now.isBefore(transitionInstant)
+            val isLiveAfter = isTodayDate && !now.isBefore(transitionInstant)
 
-            // Always show the split view for layout stability
             divider.visibility = View.VISIBLE
             
             updateCard(card1, time1, pic1, dayText1, dayIdx1, is1v1_1, getString(R.string.until_time, transitionTimeStr), isLiveBefore)
             updateCard(card2, time2, pic2, dayText2, dayIdx2, is1v1_2, getString(R.string.from_time, transitionTimeStr), isLiveAfter)
         }
 
-        // Initialize
-        displayDay(LocalDate.now())
+        // Restore state if available
+        savedInstanceState?.getString("selected_date")?.let {
+            selectedDate = LocalDate.parse(it)
+        }
+
+        // Initialize UI
+        displayDay(selectedDate)
+        
+        // Sync calendar view
+        val calendar = Calendar.getInstance()
+        calendar.set(selectedDate.year, selectedDate.monthValue - 1, selectedDate.dayOfMonth)
+        calendarView.date = calendar.timeInMillis
 
         calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            val selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
-            displayDay(selectedDate)
+            val newDate = LocalDate.of(year, month + 1, dayOfMonth)
+            displayDay(newDate)
         }
 
         btnToday.setOnClickListener {
-            displayDay(LocalDate.now())
-            val calendar = Calendar.getInstance()
-            calendarView.date = calendar.timeInMillis
+            val today = LocalDate.now()
+            displayDay(today)
+            val todayCal = Calendar.getInstance()
+            calendarView.date = todayCal.timeInMillis
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("selected_date", selectedDate.toString())
     }
 }
