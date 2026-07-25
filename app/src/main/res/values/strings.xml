@@ -6,4 +6,11 @@
     <string name="day4">Day 2 of the Free-for-All Tourney</string>
     <string name="next">The next round of 1v1 Tourneys will begin on %s.</string>
     <string name="content">A picture representing the tournament of the day.</string>
+    <string name="today">Today</string>
+    <string name="until_time">Until %s</string>
+    <string name="from_time">From %s</string>
+    <string name="all_day">All Day</string>
+    <string name="live">LIVE</string>
+    <string name="day1_only">Day 1</string>
+    <string name="day2_only">Day 2</string>
 </resources>
