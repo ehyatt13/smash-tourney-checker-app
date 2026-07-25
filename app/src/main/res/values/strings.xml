@@ -11,6 +11,7 @@
     <string name="from_time">From %s</string>
     <string name="all_day">All Day</string>
     <string name="live">LIVE</string>
+    <string name="live_label">%1$s - %2$s</string>
     <string name="day1_only">Day 1</string>
     <string name="day2_only">Day 2</string>
 </resources>
